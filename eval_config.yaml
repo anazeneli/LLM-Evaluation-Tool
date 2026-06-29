@@ -19,15 +19,16 @@ job:
 
 models:
   # Add one entry per fine-tuned checkpoint to evaluate.
-  # Use a litmodels name (org/teamspace/model-name) so every job pulls from the shared registry
-  # without re-downloading weights. See README step 2 for how to upload weights once.
+  # path = local filesystem path or HuggingFace model ID — passed directly to vLLM.
+  # To evaluate your own fine-tuned checkpoint, point path at where your training job saved weights:
+  #   e.g. /teamspace/jobs/<your-training-job>/snapshot/outputs/checkpoint
   - name: baseline
-    path: org/teamspace/gemma-3-1b-it  # replace with your litmodels name
+    path: models/gemma-3-1b
     arch: gemma-3-1b    # dashboard grouping dimension — group runs by arch to compare the same model family
 
   # - name: finetune_v1
   #   path: /teamspace/jobs/<your-sweep-job>/snapshot/outputs/gemma-lightning
-  #   arch: gemma-3-4b
+  #   arch: gemma-3-1b
 
 prompts:
   # Add one entry per system prompt variant to test.
