@@ -52,14 +52,25 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
 
+    # Resolve model path first: litmodels names (org/teamspace/model-name) are pulled from the
+    # shared registry so every job in the teamspace reuses the same cached upload — no one
+    # re-downloads weights from HuggingFace. Absolute paths are used directly (local or shared drive).
+    model_dir = args.model_dir
+    if not os.path.isabs(model_dir):
+        import litmodels
+
+        print(f"[run_job] Downloading model from litmodels: {model_dir}")
+        model_dir = litmodels.download_model(model_dir, download_dir="/tmp/models")
+        print(f"[run_job] Model ready at: {model_dir}")
+
     base_url = f"http://localhost:{args.port}"
     output_path = f"results/{args.model_name}.jsonl"
 
-    print(f"[run_job] Starting server: {args.model_dir}")
+    print(f"[run_job] Starting server: {model_dir}")
     server = subprocess.Popen(
         [
             sys.executable, "serve_model.py",
-            "--model-dir", args.model_dir,
+            "--model-dir", model_dir,
             "--port", str(args.port),
             "--max-model-len", str(args.max_model_len),
         ],

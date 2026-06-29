@@ -26,6 +26,23 @@ import litserve as ls
 from vllm import LLM, SamplingParams
 
 
+def _resolve_model_path(path: str) -> str:
+    """Return a local filesystem path, pulling from the litmodels registry if needed.
+
+    A registry reference is anything that is not an absolute path and does not exist
+    as a local file or directory (e.g. 'org/teamspace/gemma-3-1b-it').
+    Absolute paths (/teamspace/...) and existing relative paths pass through unchanged.
+    """
+    if os.path.isabs(path) or os.path.exists(path):
+        return path
+    import litmodels
+
+    print(f"[serve_model] Resolving litmodels reference: {path}")
+    local = litmodels.download_model(path, download_dir="/tmp/models")
+    print(f"[serve_model] Model ready at: {local}")
+    return str(local)
+
+
 class VLLMLitAPI(ls.LitAPI):
     def __init__(
         self,
@@ -45,7 +62,7 @@ class VLLMLitAPI(ls.LitAPI):
             model=self.model_dir,
             max_model_len=self.max_model_len,
             dtype="auto",
-            enforce_eager=True,  # T4 lacks shared memory for vLLM's Triton CUDA graph warmup; eager mode bypasses it
+            enforce_eager=False,  # T4 lacks shared memory for vLLM's Triton CUDA graph warmup; eager mode bypasses it
             gpu_memory_utilization=self.gpu_memory_utilization,
         )
         print(f"vLLM engine ready: {self.model_dir}")
@@ -102,9 +119,10 @@ def main() -> None:
         help="Fraction of GPU memory vLLM may use (lower when sharing GPU between two servers)",
     )
     args = parser.parse_args()
+    model_dir = _resolve_model_path(args.model_dir)
 
     api = VLLMLitAPI(
-        model_dir=args.model_dir,
+        model_dir=model_dir,
         max_model_len=args.max_model_len,
         max_batch_size=args.max_batch_size,
         batch_timeout=args.batch_timeout,
