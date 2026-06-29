@@ -27,7 +27,7 @@ models:
     arch: gemma-3-1b    # dashboard grouping dimension — group runs by arch to compare the same model family
 
   # - name: finetune_v1
-  #   path: /teamspace/jobs/<your-sweep-job>/snapshot/outputs/gemma-lightning
+  #   path: /teamspace/studios/this_studio/checkpoints/gemma-3-1b-ft
   #   arch: gemma-3-1b
 
 prompts:
