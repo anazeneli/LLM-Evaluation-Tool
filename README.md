@@ -165,7 +165,7 @@ single-GPU upgrade: more memory bandwidth and VRAM let vLLM run a larger concurr
 batch and clear the dataset faster on one endpoint. For a small model on a large
 dataset, sizing up to an H100 is the lever to pull.
 
-> **Note:** Gemma3 models require L4 or better — T4 lacks the FlashAttention memory bandwidth needed by this vLLM version.
+**Minimum machine is L4.** This template requires L4 or better — smaller GPUs do not have the memory bandwidth required by this vLLM version.
 
 Set `job.machine` in `eval_config.yaml`. Use `--limit 5` for a quick sanity check before committing to a full sweep on expensive hardware.
 

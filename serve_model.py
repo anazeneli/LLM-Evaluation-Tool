@@ -29,11 +29,10 @@ from vllm import LLM, SamplingParams
 def _resolve_model_path(path: str) -> str:
     """Return a local filesystem path, pulling from the litmodels registry if needed.
 
-    A registry reference is anything that is not an absolute path and does not exist
-    as a local file or directory (e.g. 'org/teamspace/gemma-3-1b-it').
-    Absolute paths (/teamspace/...) and existing relative paths pass through unchanged.
+    A registry reference has exactly 3 slash-separated parts: org/teamspace/model-name.
+    Everything else (absolute paths, relative paths like models/gemma-3-1b) passes through unchanged.
     """
-    if os.path.isabs(path) or os.path.exists(path):
+    if os.path.isabs(path) or len(path.split("/")) != 3:
         return path
     import litmodels
 
@@ -62,8 +61,7 @@ class VLLMLitAPI(ls.LitAPI):
             model=self.model_dir,
             max_model_len=self.max_model_len,
             dtype="auto",
-            enforce_eager=False,  # T4 cannot run Gemma3 inference — use L4 or better (see README).
-            # Set to True only if hitting CUDA graph warmup errors on other hardware.
+            enforce_eager=False,
             gpu_memory_utilization=self.gpu_memory_utilization,
         )
         print(f"vLLM engine ready: {self.model_dir}")

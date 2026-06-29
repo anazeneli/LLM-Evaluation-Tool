@@ -56,11 +56,11 @@ def main() -> None:
     # shared registry so every job in the teamspace reuses the same cached upload — no one
     # re-downloads weights from HuggingFace. Absolute paths are used directly (local or shared drive).
     model_dir = args.model_dir
-    if not os.path.isabs(model_dir):
+    if not os.path.isabs(model_dir) and len(model_dir.split("/")) == 3:
         import litmodels
 
         print(f"[run_job] Downloading model from litmodels: {model_dir}")
-        model_dir = litmodels.download_model(model_dir, download_dir="/tmp/models")
+        model_dir = str(litmodels.download_model(model_dir, download_dir="/tmp/models"))
         print(f"[run_job] Model ready at: {model_dir}")
 
     base_url = f"http://localhost:{args.port}"
