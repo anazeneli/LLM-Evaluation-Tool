@@ -82,6 +82,7 @@ def run(
     limit: int | None,
     experiment_name: str,
     log: bool,
+    arch: str = "",
 ) -> None:
     rows = []
     with open(dataset_path) as f:
@@ -144,7 +145,7 @@ def run(
             exp = Experiment(name=experiment_name)
             metrics = {k: v for k, v in summary.items() if isinstance(v, (int, float))}
             exp.log_metrics(metrics)
-            exp.log_metadata({"model": model_name})
+            exp.log_metadata({"arch": arch, "experiment_type": model_name})
             exp.log_file(output_path)
             exp.print_url()
         except Exception as e:
@@ -164,6 +165,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None, help="Cap rows (for smoke tests)")
     parser.add_argument("--log", action="store_true", help="Log summary metrics to LitLogger")
     parser.add_argument("--experiment-name", default=os.environ.get("EXPERIMENT_NAME", "batch-eval"))
+    parser.add_argument("--arch", default="", help="Model architecture family (e.g. gemma-3-4b); used as dashboard grouping tag")
     args = parser.parse_args()
 
     run(
@@ -178,6 +180,7 @@ def main() -> None:
         limit=args.limit,
         experiment_name=args.experiment_name,
         log=args.log,
+        arch=args.arch,
     )
 
 

@@ -13,7 +13,7 @@ experiment:
   dataset: data/sample_prompts.jsonl
 
 job:
-  machine: L4           # L4 | T4 | A100 | A100_80GB — see README for model size guidance
+  machine: L4           # L4 | A100 | H100 | A100_80GB — see README for model size guidance
   interruptible: false  # true = spot instances (cheaper, but can be preempted)
   max_model_len: 2048
 
@@ -22,9 +22,11 @@ models:
   # Paths under /teamspace/ are shared across studios and jobs — no snapshot overhead.
   - name: baseline
     path: /teamspace/studios/this_studio/models/gemma-3-4b-it  # replace with your checkpoint path
+    arch: gemma-3-4b    # dashboard grouping dimension — group runs by arch to compare the same model family
 
   # - name: finetune_v1
   #   path: /teamspace/jobs/<your-sweep-job>/snapshot/outputs/gemma-lightning
+  #   arch: gemma-3-4b
 
 prompts:
   # Add one entry per system prompt variant to test.

@@ -42,6 +42,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", required=True)
     parser.add_argument("--model-name", required=True)
+    parser.add_argument("--arch", default="")
     parser.add_argument("--dataset", required=True)
     parser.add_argument("--system-prompt", default="")
     parser.add_argument("--experiment-name", default=os.environ.get("EXPERIMENT_NAME", "batch-eval"))
@@ -75,6 +76,7 @@ def main() -> None:
         sys.executable, "run_inference.py",
         "--model-url", base_url,
         "--model-name", args.model_name,
+        "--arch", args.arch,
         "--dataset", args.dataset,
         "--output", output_path,
         "--experiment-name", args.experiment_name,

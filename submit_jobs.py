@@ -59,10 +59,16 @@ def main() -> None:
             model_name = f"{model['name']}__{prompt['name']}"
             job_name = f"eval-{model_name}-{int(time.time())}"
 
+            arch = model.get("arch")
+            if not arch:
+                print(f"  [warn] model '{model['name']}' has no 'arch' field — defaulting to model name")
+                arch = model["name"]
+
             cmd_parts = [
                 "python run_job.py",
                 f"--model-dir {model['path']}",
                 f"--model-name {model_name}",
+                f"--arch {arch}",
                 f"--experiment-name {experiment_name}",
                 f"--dataset {dataset}",
                 f"--max-model-len {max_model_len}",
