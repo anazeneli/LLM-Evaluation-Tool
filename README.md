@@ -39,29 +39,39 @@ single vLLM endpoint, and logs that run to LitLogger.
 pip install -r requirements.txt
 ```
 
-### 2. Point to your model checkpoints
-Edit `eval_config.yaml` and set `models[*].path` and `models[*].arch` for each checkpoint.
-`arch` is logged as a metadata tag that LitLogger renders as a sortable column — sort or filter
-by it to bring runs of the same model family together for comparison.
+### 2. Upload model weights to the Lightning model registry (once per teamspace)
+Run this once from your Studio. Batch Jobs can't authenticate interactively, so weights must be
+uploaded ahead of time. The Lightning model registry is shared across every Studio and Batch Job
+in your teamspace — one upload, no re-downloading per user or per job.
+
+```bash
+python download_model.py \
+    --model-id unsloth/gemma-3-1b-it \
+    --litmodels-name org/teamspace/gemma-3-1b-it
+```
+
+Replace `org/teamspace` with your Lightning organization and teamspace names.
+For gated models (e.g. `google/gemma-3-4b-it`) set `export HF_TOKEN="hf_..."` first.
+
+### 3. Point to your model checkpoints
+Edit `eval_config.yaml` and set `models[*].path` to the litmodels name you used above, and
+`models[*].arch` for dashboard grouping.
 
 ```yaml
 models:
   - name: baseline
-    path: /teamspace/studios/this_studio/models/gemma-3-4b-it
-    arch: gemma-3-4b
+    path: org/teamspace/gemma-3-1b-it          # litmodels registry name — downloaded at job start
+    arch: gemma-3-1b
   - name: finetune_v1
-    path: /teamspace/jobs/<sweep-job>/snapshot/outputs/gemma-lightning
-    arch: gemma-3-4b
+    path: /teamspace/studios/this_studio/models/gemma-3-1b  # local path — used as-is
+    arch: gemma-3-1b
 ```
 
-Paths under `/teamspace/` are shared across Studios and Jobs — no copy needed.
+Both path styles are supported. A registry name (`org/teamspace/...`) is pulled from litmodels at
+job startup — shared across the whole teamspace, no re-downloading per user or per job. An absolute
+path is passed straight to vLLM unchanged.
 
-To download weights from HuggingFace:
-```bash
-python download_model.py --model-id google/gemma-3-4b-it --save-dir /teamspace/studios/this_studio/models/gemma_4b
-```
-
-### 3. Preview then submit
+### 4. Preview then submit
 ```bash
 python submit_jobs.py --dry-run        # see what jobs would be submitted
 python submit_jobs.py --limit 5        # smoke test: 5 prompts per job

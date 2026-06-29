@@ -31,5 +31,11 @@ env/
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
+# Generated outputs
+results/
+
+# Scratch files
+scratch.ipynb
+
 # OS
 .DS_Store
