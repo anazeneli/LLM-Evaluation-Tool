@@ -62,7 +62,8 @@ class VLLMLitAPI(ls.LitAPI):
             model=self.model_dir,
             max_model_len=self.max_model_len,
             dtype="auto",
-            enforce_eager=False,  # T4 lacks shared memory for vLLM's Triton CUDA graph warmup; eager mode bypasses it
+            enforce_eager=False,  # T4 cannot run Gemma3 inference — use L4 or better (see README).
+            # Set to True only if hitting CUDA graph warmup errors on other hardware.
             gpu_memory_utilization=self.gpu_memory_utilization,
         )
         print(f"vLLM engine ready: {self.model_dir}")
