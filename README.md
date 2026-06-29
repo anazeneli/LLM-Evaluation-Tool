@@ -40,7 +40,20 @@ pip install -r requirements.txt
 ```
 
 ### 2. Point to your model checkpoints
-Edit `eval_config.yaml` and set `models[*].path` to your checkpoint locations.
+Edit `eval_config.yaml` and set `models[*].path` and `models[*].arch` for each checkpoint.
+`arch` is logged as a metadata tag that LitLogger renders as a sortable column — sort or filter
+by it to bring runs of the same model family together for comparison.
+
+```yaml
+models:
+  - name: baseline
+    path: /teamspace/studios/this_studio/models/gemma-3-4b-it
+    arch: gemma-3-4b
+  - name: finetune_v1
+    path: /teamspace/jobs/<sweep-job>/snapshot/outputs/gemma-lightning
+    arch: gemma-3-4b
+```
+
 Paths under `/teamspace/` are shared across Studios and Jobs — no copy needed.
 
 To download weights from HuggingFace:
@@ -116,7 +129,15 @@ Each job writes a JSONL results file and logs a summary to LitLogger:
 {"id": "001", "prompt": "...", "response": "...", "latency_s": 0.42, "error": null}
 ```
 
-LitLogger tracks per-job: `num_prompts`, `throughput_req_s`, `latency_p50_s`, `latency_p95_s`, `error_rate`, and the full results file as an artifact. Compare all models in one experiment dashboard.
+LitLogger tracks per-job:
+
+- **Metrics:** `num_prompts`, `throughput_req_s`, `latency_p50_s`, `latency_p95_s`, `error_rate`
+- **Tags:** `arch` (model family, sortable column for cross-run comparison), `experiment_type` (run identity: `{model}__{prompt}`)
+- **Artifact:** full results JSONL file
+
+Compare all models in one experiment dashboard by sorting on `arch` or any metric column.
+
+**The logging is yours to extend.** All LitLogger calls are in one place — the `if log:` block at the bottom of `run()` in `run_inference.py`. Add metrics to the `summary` dict, add tags to `log_metadata`, or call `exp.log_file()` with additional artifacts. Changes apply to every job without touching the submission or job-runner code.
 
 ---
 
