@@ -16,7 +16,6 @@ job:
   machine: L4           # L4 | T4 | A100 | A100_80GB — see README for model size guidance
   interruptible: false  # true = spot instances (cheaper, but can be preempted)
   max_model_len: 2048
-  shards: 1             # parallel GPU jobs per (model, prompt) — increase for 100k+ prompts
 
 models:
   # Add one entry per fine-tuned checkpoint to evaluate.

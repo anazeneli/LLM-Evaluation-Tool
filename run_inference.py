@@ -142,7 +142,7 @@ def run(
         try:
             from litlogger import Experiment
             exp = Experiment(name=experiment_name)
-            metrics = {k: float(v) for k, v in summary.items() if isinstance(v, (int, float))}
+            metrics = {k: v for k, v in summary.items() if isinstance(v, (int, float))}
             exp.log_metrics(metrics)
             exp.log_metadata({"model": model_name})
             exp.log_file(output_path)

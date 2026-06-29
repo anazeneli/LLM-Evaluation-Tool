@@ -40,65 +40,58 @@ def main() -> None:
     machine = getattr(Machine, machine_str, Machine.L4)
     interruptible = cfg["job"].get("interruptible", False)
     max_model_len = cfg["job"].get("max_model_len", 2048)
-    num_shards = cfg["job"].get("shards", 1)
 
     models = cfg.get("models", [])
     prompts = cfg.get("prompts", [{"name": "default", "system": ""}])
 
     studio = Studio()
-    total_jobs = len(models) * len(prompts) * num_shards
+    total_jobs = len(models) * len(prompts)
     print(f"Studio    : {studio.name}")
     print(f"Experiment: {experiment_name}")
     print(f"Machine   : {machine_str} → {machine}")
     print(f"Models    : {len(models)}")
     print(f"Prompts   : {len(prompts)}")
-    print(f"Shards    : {num_shards}  (per model×prompt)")
     print(f"Total jobs: {total_jobs}\n")
 
     submitted = []
     for model in models:
         for prompt in prompts:
-            for shard_index in range(num_shards):
-                model_name = f"{model['name']}__{prompt['name']}"
-                shard_suffix = f"--s{shard_index}" if num_shards > 1 else ""
-                job_name = f"eval-{model_name}{shard_suffix}-{int(time.time())}"
+            model_name = f"{model['name']}__{prompt['name']}"
+            job_name = f"eval-{model_name}-{int(time.time())}"
 
-                cmd_parts = [
-                    "python run_job.py",
-                    f"--model-dir {model['path']}",
-                    f"--model-name {model_name}",
-                    f"--experiment-name {experiment_name}",
-                    f"--dataset {dataset}",
-                    f"--max-model-len {max_model_len}",
-                ]
-                if prompt.get("system"):
-                    prompt_arg = prompt["system"].strip().replace("\n", " ")
-                    cmd_parts.append(f"--system-prompt \"{prompt_arg}\"")
-                if args.limit > 0:
-                    cmd_parts.append(f"--limit {args.limit}")
-                if num_shards > 1:
-                    cmd_parts.append(f"--shard-index {shard_index} --num-shards {num_shards}")
+            cmd_parts = [
+                "python run_job.py",
+                f"--model-dir {model['path']}",
+                f"--model-name {model_name}",
+                f"--experiment-name {experiment_name}",
+                f"--dataset {dataset}",
+                f"--max-model-len {max_model_len}",
+            ]
+            if prompt.get("system"):
+                prompt_arg = prompt["system"].strip().replace("\n", " ")
+                cmd_parts.append(f"--system-prompt \"{prompt_arg}\"")
+            if args.limit > 0:
+                cmd_parts.append(f"--limit {args.limit}")
 
-                command = " ".join(cmd_parts)
+            command = " ".join(cmd_parts)
 
-                shard_label = f" shard {shard_index}/{num_shards}" if num_shards > 1 else ""
-                print(f"  Job: {job_name}{shard_label}")
-                print(f"       model  = {model['path']}")
-                print(f"       prompt = {prompt['name']}")
-                print(f"       cmd    = {command}")
+            print(f"  Job: {job_name}")
+            print(f"       model  = {model['path']}")
+            print(f"       prompt = {prompt['name']}")
+            print(f"       cmd    = {command}")
 
-                if args.dry_run:
-                    print("       [dry-run — not submitted]\n")
-                    continue
+            if args.dry_run:
+                print("       [dry-run — not submitted]\n")
+                continue
 
-                studio.run_job(
-                    name=job_name,
-                    machine=machine,
-                    command=command,
-                    interruptible=interruptible,
-                )
-                submitted.append(job_name)
-                print(f"       submitted ✓\n")
+            studio.run_job(
+                name=job_name,
+                machine=machine,
+                command=command,
+                interruptible=interruptible,
+            )
+            submitted.append(job_name)
+            print(f"       submitted ✓\n")
 
     if not args.dry_run:
         print(f"{len(submitted)} job(s) submitted.")

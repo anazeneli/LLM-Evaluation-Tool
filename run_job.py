@@ -49,8 +49,6 @@ def main() -> None:
     parser.add_argument("--max-model-len", type=int, default=int(os.environ.get("VLLM_MAX_MODEL_LEN", "2048")))
     parser.add_argument("--max-workers", type=int, default=64)
     parser.add_argument("--limit", type=int, default=0)
-    parser.add_argument("--shard-index", type=int, default=0)
-    parser.add_argument("--num-shards", type=int, default=1)
     args = parser.parse_args()
 
     base_url = f"http://localhost:{args.port}"
@@ -87,8 +85,6 @@ def main() -> None:
         cmd += ["--system-prompt", args.system_prompt]
     if args.limit > 0:
         cmd += ["--limit", str(args.limit)]
-    if args.num_shards > 1:
-        cmd += ["--shard-index", str(args.shard_index), "--num-shards", str(args.num_shards)]
 
     try:
         result = subprocess.run(cmd, check=True)
