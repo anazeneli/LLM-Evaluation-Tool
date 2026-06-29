@@ -1,0 +1,35 @@
+# IDE and editor artifacts
+.idea/
+.cursor/
+.cursor-server
+.vscode/
+.vscode-server
+.windsurf-server
+
+# Lightning Studio internals
+.lightning_studio/
+
+# Claude Code internals
+.claude.json
+.claude/
+
+# Triton cache
+.triton/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.so
+.venv/
+venv/
+env/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# OS
+.DS_Store

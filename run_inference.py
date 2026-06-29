@@ -82,8 +82,6 @@ def run(
     limit: int | None,
     experiment_name: str,
     log: bool,
-    shard_index: int = 0,
-    num_shards: int = 1,
 ) -> None:
     rows = []
     with open(dataset_path) as f:
@@ -92,8 +90,6 @@ def run(
                 break
             line = line.strip()
             if not line:
-                continue
-            if num_shards > 1 and (i % num_shards) != shard_index:
                 continue
             rows.append(json.loads(line))
 
@@ -126,7 +122,7 @@ def run(
 
     summary = {
         "model": model_name,
-        "total_prompts": len(rows),
+        "num_prompts": len(rows),
         "errors": errors,
         "error_rate": round(errors / len(rows), 4),
         "throughput_req_s": round(throughput, 2),
@@ -146,7 +142,7 @@ def run(
         try:
             from litlogger import Experiment
             exp = Experiment(name=experiment_name)
-            metrics = {k: v for k, v in summary.items() if isinstance(v, (int, float))}
+            metrics = {k: float(v) for k, v in summary.items() if isinstance(v, (int, float))}
             exp.log_metrics(metrics)
             exp.log_metadata({"model": model_name})
             exp.log_file(output_path)
@@ -168,8 +164,6 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=None, help="Cap rows (for smoke tests)")
     parser.add_argument("--log", action="store_true", help="Log summary metrics to LitLogger")
     parser.add_argument("--experiment-name", default=os.environ.get("EXPERIMENT_NAME", "batch-eval"))
-    parser.add_argument("--shard-index", type=int, default=0, help="Which shard this job handles (0-based)")
-    parser.add_argument("--num-shards", type=int, default=1, help="Total number of parallel shards")
     args = parser.parse_args()
 
     run(
@@ -184,8 +178,6 @@ def main() -> None:
         limit=args.limit,
         experiment_name=args.experiment_name,
         log=args.log,
-        shard_index=args.shard_index,
-        num_shards=args.num_shards,
     )
 
 

@@ -1,0 +1,39 @@
+# Eval configuration — edit this file, then run: python submit_jobs.py
+#
+# Each (model, prompt) combination becomes one Lightning Batch Job.
+# Jobs run on the machine specified below, independent of this Studio's machine.
+#
+# To test the pipeline before a full run:
+#   python submit_jobs.py --dry-run        # preview jobs without submitting
+#   python run_job.py --model-dir <path> --model-name test --dataset data/sample_prompts.jsonl --limit 5
+
+experiment:
+  name: my-eval-run
+  # Replace with your real prompt dataset for production runs (100k+ rows supported)
+  dataset: data/sample_prompts.jsonl
+
+job:
+  machine: L4           # L4 | T4 | A100 | A100_80GB — see README for model size guidance
+  interruptible: false  # true = spot instances (cheaper, but can be preempted)
+  max_model_len: 2048
+  shards: 1             # parallel GPU jobs per (model, prompt) — increase for 100k+ prompts
+
+models:
+  # Add one entry per fine-tuned checkpoint to evaluate.
+  # Paths under /teamspace/ are shared across studios and jobs — no snapshot overhead.
+  - name: baseline
+    path: /teamspace/studios/this_studio/models/gemma-3-4b-it  # replace with your checkpoint path
+
+  # - name: finetune_v1
+  #   path: /teamspace/jobs/<your-sweep-job>/snapshot/outputs/gemma-lightning
+
+prompts:
+  # Add one entry per system prompt variant to test.
+  # Each prompt runs against every model above.
+  - name: default
+    system: |
+      You are a helpful assistant. Answer clearly and concisely.
+
+  # - name: structured
+  #   system: |
+  #     Reply in JSON only. No explanation.

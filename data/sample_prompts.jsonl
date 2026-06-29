@@ -1,0 +1,20 @@
+{"id": "001", "prompt": "Classify the sentiment of this review as positive, negative, or neutral: 'The product arrived on time but the packaging was damaged.'"}
+{"id": "002", "prompt": "Classify the sentiment of this review as positive, negative, or neutral: 'Absolutely love this! Works perfectly and shipping was fast.'"}
+{"id": "003", "prompt": "Classify the sentiment of this review as positive, negative, or neutral: 'Terrible quality. Broke after one day. Do not buy.'"}
+{"id": "004", "prompt": "Classify the sentiment of this review as positive, negative, or neutral: 'It is okay. Nothing special but does the job.'"}
+{"id": "005", "prompt": "Classify the sentiment of this review as positive, negative, or neutral: 'Five stars. Exactly as described and great customer support.'"}
+{"id": "006", "prompt": "Summarize the following in one sentence: 'The quarterly earnings report showed a 12% increase in revenue driven primarily by strong performance in the cloud computing division, while hardware sales declined slightly due to supply chain disruptions.'"}
+{"id": "007", "prompt": "Summarize the following in one sentence: 'Researchers at the university developed a new polymer material that can absorb up to 10 times its weight in water and then release it slowly over several days, which could have significant applications in agriculture and drought relief.'"}
+{"id": "008", "prompt": "Summarize the following in one sentence: 'The city council voted 7-2 to approve the new transit plan, which includes expanding bus routes in the eastern districts, adding three new subway stops, and introducing a discounted fare program for low-income residents.'"}
+{"id": "009", "prompt": "Extract the key entities from this text as a JSON object with fields: person, organization, location. Text: 'Elon Musk announced that Tesla will open a new gigafactory in Mexico City next year.'"}
+{"id": "010", "prompt": "Extract the key entities from this text as a JSON object with fields: person, organization, location. Text: 'The CEO of Apple, Tim Cook, met with government officials in Brussels to discuss data privacy regulations.'"}
+{"id": "011", "prompt": "Extract the key entities from this text as a JSON object with fields: person, organization, location. Text: 'Serena Williams returned to Wimbledon for a charity exhibition match organized by the International Tennis Federation.'"}
+{"id": "012", "prompt": "Is the following statement a fact or an opinion? Statement: 'The Eiffel Tower is located in Paris, France.'"}
+{"id": "013", "prompt": "Is the following statement a fact or an opinion? Statement: 'Paris is the most beautiful city in the world.'"}
+{"id": "014", "prompt": "Is the following statement a fact or an opinion? Statement: 'Water boils at 100 degrees Celsius at sea level.'"}
+{"id": "015", "prompt": "Is the following statement a fact or an opinion? Statement: 'Classical music is more sophisticated than pop music.'"}
+{"id": "016", "prompt": "Translate the following to formal business English: 'Hey, just wanted to touch base real quick — any update on that thing we talked about last week?'"}
+{"id": "017", "prompt": "Translate the following to formal business English: 'FYI the client is kinda upset about the delay lol, maybe we should jump on a call asap?'"}
+{"id": "018", "prompt": "Identify the logical fallacy in the following argument: 'We should not listen to Dr. Smith's research on climate change because she once got a speeding ticket.'"}
+{"id": "019", "prompt": "Identify the logical fallacy in the following argument: 'Everyone is buying this stock, so it must be a good investment.'"}
+{"id": "020", "prompt": "Identify the logical fallacy in the following argument: 'If we allow students to redo one exam, soon they will want to redo every exam and grades will become meaningless.'"}
