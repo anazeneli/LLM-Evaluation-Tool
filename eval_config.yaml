@@ -1,42 +1,35 @@
 # Eval configuration — edit this file, then run: python submit_jobs.py
 #
-# Each (model, prompt) combination becomes one Lightning Batch Job.
-# Jobs run on the machine specified below, independent of this Studio's machine.
-#
-# To test the pipeline before a full run:
-#   python submit_jobs.py --dry-run        # preview jobs without submitting
-#   python run_job.py --model-dir <path> --model-name test --dataset data/sample_prompts.jsonl --limit 5
+# Each (model × prompt) combination becomes one Lightning Batch Job running on its own GPU.
+# Steps:
+#   1. Upload your model weights:  python download_model.py --model-id unsloth/gemma-3-270m-it --litmodels-name org/teamspace/model-name
+#   2. Set models[*].path below to the litmodels name you used above
+#   3. python submit_jobs.py --dry-run   # preview
+#   4. python submit_jobs.py --limit 5   # smoke test on L4 (5 prompts)
+#   5. python submit_jobs.py             # full run
 
 experiment:
-  name: gemma-3-270m-baseline
-  # Replace with your real prompt dataset for production runs (100k+ rows supported)
-  dataset: data/sample_prompts.jsonl
+  name: my-eval-run     # groups all jobs in this config into one LitLogger experiment
+  dataset: data/sample_prompts.jsonl   # replace with your dataset for production runs
 
 job:
-  machine: L4           # T4 | A100 | H100 | A100_80GB — T4 lacks shared memory for Gemma3 Triton kernels
-  interruptible: false  # true = spot instances (cheaper, but can be preempted)
+  machine: L4           # minimum for Gemma3 — T4 lacks shared memory for Triton kernels
+                        # larger datasets: upgrade to A100 or H100 for more throughput
+  interruptible: false  # true = spot instances (cheaper, may be preempted)
   max_model_len: 2048
 
 models:
   # Add one entry per checkpoint to evaluate.
-  # path supports three formats:
-  #   1. litmodels ref  — org/teamspace/model-name   (downloaded to models/ on the job machine)
-  #   2. teamspace path — /teamspace/studios/<studio>/path/to/checkpoint
-  #   3. local path     — ./models/my-model  or any absolute path visible on the job machine
-  - name: google-base
-    path: org/teamspace/gemma-3-270m
-    arch: gemma-3-270m
+  # path formats:
+  #   litmodels ref  — org/teamspace/model-name      (shared registry, downloaded at job start)
+  #   teamspace path — /teamspace/studios/<s>/path   (direct filesystem access)
+  - name: baseline
+    path: org/teamspace/model-name   # replace with your litmodels path (see step 1 above)
+    arch: gemma-3-270m-it            # used for grouping in LitLogger dashboard
 
-  - name: google-it
-    path: org/teamspace/gemma-3-270m-it
-    arch: gemma-3-270m-it
-
-  - name: unsloth-it
-    path: org/teamspace/unsloth--gemma-3-270m-it
-    arch: gemma-3-270m-it
-
+  # Add more models to compare them side by side in the same experiment:
   # - name: finetune_v1
-  #   path: /teamspace/studios/this_studio/checkpoints/gemma-3-270m-it-ft
+  #   path: org/teamspace/my-finetuned-model
   #   arch: gemma-3-270m-it
 
 prompts:
