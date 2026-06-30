@@ -13,7 +13,7 @@ experiment:
   dataset: data/sample_prompts.jsonl
 
 job:
-  machine: T4           # L4 | A100 | H100 | A100_80GB — see README for model size guidance
+  machine: L4           # T4 | A100 | H100 | A100_80GB — T4 lacks shared memory for Gemma3 Triton kernels
   interruptible: false  # true = spot instances (cheaper, but can be preempted)
   max_model_len: 2048
 

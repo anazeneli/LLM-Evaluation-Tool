@@ -75,11 +75,12 @@ path is passed straight to vLLM unchanged.
 ### 4. Preview then submit
 ```bash
 python submit_jobs.py --dry-run        # see what jobs would be submitted
-python submit_jobs.py --limit 5        # smoke test: spins up a T4, runs 5 prompts, shuts down
+python submit_jobs.py --limit 5        # smoke test: spins up an L4, runs 5 prompts, shuts down
 python submit_jobs.py                  # full run
 ```
 
-> **Note:** vLLM requires a GPU, so jobs must run on a T4 or better — there is no local CPU test path.
+> **Note:** vLLM requires a GPU and jobs cannot run on CPU. The minimum is an **L4** — T4 lacks
+> the shared memory Gemma3's Triton attention kernels require (80KB needed, 64KB available).
 > Use `--limit 5` for a cheap end-to-end smoke test before committing to a full sweep.
 
 ---
@@ -159,13 +160,13 @@ Compare all models in one experiment dashboard by sorting on `arch` or any metri
 
 | Model size | Default machine | High-throughput option |
 |---|---|---|
-| 270M | T4 | L4 |
+| 270M | L4 | A100 |
 | ≤1B | L4 | H100 |
 | 4B | L4 | H100 |
 | 12B | A100 | H100 |
 | 27B+ | A100_80GB | H100 |
 
-`T4` is sufficient for the 270M default model. `L4` or better is recommended for 1B+ models. `H100` is the high-throughput
+`L4` is the minimum — T4's shared memory is too small for Gemma3's attention kernels. `A100` or better is recommended for 1B+ models. `H100` is the high-throughput
 single-GPU upgrade: more memory bandwidth and VRAM let vLLM run a larger concurrent
 batch and clear the dataset faster on one endpoint.
 
