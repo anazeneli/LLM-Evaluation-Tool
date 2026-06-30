@@ -8,7 +8,7 @@ Built for comparing model checkpoints across large prompt sets.
 entry to a shared LitLogger experiment — its metrics, config, and full results
 file. You compare runs side by side in the LitLogger dashboard.
 
-A **sample dataset of 20 prompts** is included so you can run the full pipeline
+A **sample dataset of 100 prompts** is included so you can run the full pipeline
 immediately. Swap in your real dataset when ready.
 
 ---
@@ -74,9 +74,9 @@ path is passed straight to vLLM unchanged.
 
 ### 4. Preview then submit
 ```bash
-python submit_jobs.py --dry-run        # see what jobs would be submitted
-python submit_jobs.py --limit 5        # smoke test: spins up an L4, runs 5 prompts, shuts down
-python submit_jobs.py                  # full run
+python submit_jobs.py --dry-run                    # see what jobs would be submitted
+python submit_jobs.py --only baseline --limit 5    # smoke test: one model, 5 prompts
+python submit_jobs.py                              # full run (all models × all prompts)
 ```
 
 > **Note:** vLLM requires a GPU and jobs cannot run on CPU. The minimum is an **L4** — T4 lacks
@@ -87,7 +87,7 @@ python submit_jobs.py                  # full run
 
 ## Scaling to your real dataset
 
-The sample dataset (`data/sample_prompts.jsonl`) has 20 prompts to verify
+The sample dataset (`data/sample_prompts.jsonl`) has 100 prompts to verify
 the pipeline. For production, point at your full dataset:
 
 ```yaml
@@ -183,7 +183,7 @@ Set `job.machine` in `eval_config.yaml`. Use `--limit 5` for a quick sanity chec
 | File | Purpose |
 |---|---|
 | `eval_config.yaml` | **Start here** — model paths, prompts, machine |
-| `data/sample_prompts.jsonl` | 20-prompt sample dataset — replace with your data |
+| `data/sample_prompts.jsonl` | 100-prompt sample dataset — replace with your data |
 | `submit_jobs.py` | Submit one batch job per (model × prompt) |
 | `run_job.py` | Job entry point: start server → run inference → log |
 | `run_inference.py` | Streams prompts, concurrent requests, writes results |
