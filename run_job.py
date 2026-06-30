@@ -57,11 +57,17 @@ def main() -> None:
     # re-downloads weights from HuggingFace. Absolute paths are used directly (local or shared drive).
     model_dir = args.model_dir
     if not os.path.isabs(model_dir) and len(model_dir.split("/")) == 3:
-        import litmodels
+        model_name = model_dir.split("/")[-1]
+        cached = f"/tmp/models/{model_name}"
+        if os.path.isfile(os.path.join(cached, "config.json")):
+            print(f"[run_job] Using cached model at: {cached}")
+            model_dir = cached
+        else:
+            import litmodels
 
-        print(f"[run_job] Downloading model from litmodels: {model_dir}")
-        model_dir = str(litmodels.download_model(model_dir, download_dir="/tmp/models"))
-        print(f"[run_job] Model ready at: {model_dir}")
+            print(f"[run_job] Downloading model from litmodels: {model_dir}")
+            model_dir = str(litmodels.download_model(model_dir, download_dir="/tmp/models"))
+            print(f"[run_job] Model ready at: {model_dir}")
 
     base_url = f"http://localhost:{args.port}"
     output_path = f"results/{args.model_name}.jsonl"

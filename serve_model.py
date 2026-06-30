@@ -34,6 +34,11 @@ def _resolve_model_path(path: str) -> str:
     """
     if os.path.isabs(path) or len(path.split("/")) != 3:
         return path
+    model_name = path.split("/")[-1]
+    cached = f"/tmp/models/{model_name}"
+    if os.path.isfile(os.path.join(cached, "config.json")):
+        print(f"[serve_model] Using cached model at: {cached}")
+        return cached
     import litmodels
 
     print(f"[serve_model] Resolving litmodels reference: {path}")

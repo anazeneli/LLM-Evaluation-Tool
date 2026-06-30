@@ -46,11 +46,12 @@ in your teamspace — one upload, no re-downloading per user or per job.
 
 ```bash
 python download_model.py \
-    --model-id unsloth/gemma-3-1b-it \
-    --litmodels-name org/teamspace/gemma-3-1b-it
+    --model-id unsloth/gemma-3-270m-it \
+    --litmodels-name org/teamspace/gemma-3-270m-it
 ```
 
 Replace `org/teamspace` with your Lightning organization and teamspace names.
+If the model is already in the registry, the script skips the download automatically.
 For gated models (e.g. `google/gemma-3-4b-it`) set `export HF_TOKEN="hf_..."` first.
 
 ### 3. Point to your model checkpoints
@@ -60,11 +61,11 @@ Edit `eval_config.yaml` and set `models[*].path` to the litmodels name you used 
 ```yaml
 models:
   - name: baseline
-    path: org/teamspace/gemma-3-1b-it          # litmodels registry name — downloaded at job start
-    arch: gemma-3-1b
+    path: org/teamspace/gemma-3-270m-it        # litmodels registry name — downloaded at job start
+    arch: gemma-3-270m-it
   - name: finetune_v1
-    path: /teamspace/studios/this_studio/models/gemma-3-1b  # local path — used as-is
-    arch: gemma-3-1b
+    path: /teamspace/studios/this_studio/models/gemma-3-270m-it  # local path — used as-is
+    arch: gemma-3-270m-it
 ```
 
 Both path styles are supported. A registry name (`org/teamspace/...`) is pulled from litmodels at
@@ -155,17 +156,15 @@ Compare all models in one experiment dashboard by sorting on `arch` or any metri
 
 | Model size | Default machine | High-throughput option |
 |---|---|---|
+| 270M | T4 | L4 |
 | ≤1B | L4 | H100 |
-| 4B | L4 (default) | H100 |
+| 4B | L4 | H100 |
 | 12B | A100 | H100 |
 | 27B+ | A100_80GB | H100 |
 
-`L4` is the default — comfortable for a 4B model. `H100` is the high-throughput
+`T4` is sufficient for the 270M default model. `L4` or better is recommended for 1B+ models. `H100` is the high-throughput
 single-GPU upgrade: more memory bandwidth and VRAM let vLLM run a larger concurrent
-batch and clear the dataset faster on one endpoint. For a small model on a large
-dataset, sizing up to an H100 is the lever to pull.
-
-**Minimum machine is L4.** This template requires L4 or better — smaller GPUs do not have the memory bandwidth required by this vLLM version.
+batch and clear the dataset faster on one endpoint.
 
 Set `job.machine` in `eval_config.yaml`. Use `--limit 5` for a quick sanity check before committing to a full sweep on expensive hardware.
 

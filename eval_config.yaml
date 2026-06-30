@@ -13,7 +13,7 @@ experiment:
   dataset: data/sample_prompts.jsonl
 
 job:
-  machine: L4           # L4 | A100 | H100 | A100_80GB — see README for model size guidance
+  machine: T4           # L4 | A100 | H100 | A100_80GB — see README for model size guidance
   interruptible: false  # true = spot instances (cheaper, but can be preempted)
   max_model_len: 2048
 
@@ -23,12 +23,12 @@ models:
   # To evaluate your own fine-tuned checkpoint, point path at where your training job saved weights:
   #   e.g. /teamspace/jobs/<your-training-job>/snapshot/outputs/checkpoint
   - name: baseline
-    path: models/gemma-3-1b
-    arch: gemma-3-1b    # dashboard grouping dimension — group runs by arch to compare the same model family
+    path: org/teamspace/gemma-3-270m-it
+    arch: gemma-3-270m-it    # dashboard grouping dimension — group runs by arch to compare the same model family
 
   # - name: finetune_v1
-  #   path: /teamspace/studios/this_studio/checkpoints/gemma-3-1b-ft
-  #   arch: gemma-3-1b
+  #   path: /teamspace/studios/this_studio/checkpoints/gemma-3-270m-it-ft
+  #   arch: gemma-3-270m-it
 
 prompts:
   # Add one entry per system prompt variant to test.
