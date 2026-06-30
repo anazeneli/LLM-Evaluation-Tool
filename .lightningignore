@@ -1,0 +1,71 @@
+# Personal credentials & auth
+.claude
+.claude.json
+.ssh
+.gitconfig
+.sudo_as_admin_successful
+
+# IDE / editor internals
+.cursor
+.cursor-server
+.vscode
+.vscode-server
+.windsurf-server
+.idea
+
+# Shell & user config
+.zshrc
+.zshenv
+.zlogin
+.zlogout
+.zprofile
+.zcompdump*
+.zsh_history
+.oh-my-zsh
+.bashrc
+.profile
+.hushlogin
+.screenrc
+.vimrc
+
+# Runtime caches
+.cache
+.config
+.conda
+.condarc
+.ipython
+.local
+.nv
+.nvm
+.npm
+.bower
+.triton
+
+# Lightning internals
+.lightning
+.lightning_studio
+
+# Generated outputs — not part of the template
+results
+lightning_logs
+models
+
+# Python artifacts
+__pycache__
+*.py[cod]
+*.pyc
+*.egg-info
+.eggs
+dist
+build
+*.so
+.venv
+venv
+env
+
+# Notebooks
+.ipynb_checkpoints
+scratch.ipynb
+
+# OS
+.DS_Store

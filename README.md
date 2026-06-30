@@ -75,9 +75,12 @@ path is passed straight to vLLM unchanged.
 ### 4. Preview then submit
 ```bash
 python submit_jobs.py --dry-run        # see what jobs would be submitted
-python submit_jobs.py --limit 5        # smoke test: 5 prompts per job
+python submit_jobs.py --limit 5        # smoke test: spins up a T4, runs 5 prompts, shuts down
 python submit_jobs.py                  # full run
 ```
+
+> **Note:** vLLM requires a GPU, so jobs must run on a T4 or better — there is no local CPU test path.
+> Use `--limit 5` for a cheap end-to-end smoke test before committing to a full sweep.
 
 ---
 

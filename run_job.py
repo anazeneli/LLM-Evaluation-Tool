@@ -3,13 +3,8 @@
 Starts the vLLM server, runs inference over the full prompt dataset,
 logs results to LitLogger, then exits cleanly.
 
-Usage (local smoke test):
-    python run_job.py \\
-        --model-dir models/gemma_ft_v1 \\
-        --model-name ft_v1 \\
-        --dataset prompts.jsonl \\
-        --system-prompt "You are a helpful assistant." \\
-        --limit 10
+Usage (smoke test via batch job — requires a GPU, cannot run on CPU):
+    python submit_jobs.py --limit 5
 
 Launched automatically by submit_jobs.py for each (model, prompt) pair.
 """
@@ -23,6 +18,8 @@ import sys
 import time
 
 import requests
+
+from model_utils import resolve_model_path
 
 
 def _wait_for_server(url: str, timeout: int = 300) -> bool:
@@ -52,22 +49,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=0)
     args = parser.parse_args()
 
-    # Resolve model path first: litmodels names (org/teamspace/model-name) are pulled from the
-    # shared registry so every job in the teamspace reuses the same cached upload — no one
-    # re-downloads weights from HuggingFace. Absolute paths are used directly (local or shared drive).
-    model_dir = args.model_dir
-    if not os.path.isabs(model_dir) and len(model_dir.split("/")) == 3:
-        model_name = model_dir.split("/")[-1]
-        cached = f"/tmp/models/{model_name}"
-        if os.path.isfile(os.path.join(cached, "config.json")):
-            print(f"[run_job] Using cached model at: {cached}")
-            model_dir = cached
-        else:
-            import litmodels
-
-            print(f"[run_job] Downloading model from litmodels: {model_dir}")
-            model_dir = str(litmodels.download_model(model_dir, download_dir="/tmp/models"))
-            print(f"[run_job] Model ready at: {model_dir}")
+    model_dir = resolve_model_path(args.model_dir)
 
     base_url = f"http://localhost:{args.port}"
     output_path = f"results/{args.model_name}.jsonl"

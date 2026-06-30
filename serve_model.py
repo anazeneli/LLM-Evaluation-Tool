@@ -25,26 +25,7 @@ import os
 import litserve as ls
 from vllm import LLM, SamplingParams
 
-
-def _resolve_model_path(path: str) -> str:
-    """Return a local filesystem path, pulling from the litmodels registry if needed.
-
-    A registry reference has exactly 3 slash-separated parts: org/teamspace/model-name.
-    Everything else (absolute paths, relative paths like models/gemma-3-1b) passes through unchanged.
-    """
-    if os.path.isabs(path) or len(path.split("/")) != 3:
-        return path
-    model_name = path.split("/")[-1]
-    cached = f"/tmp/models/{model_name}"
-    if os.path.isfile(os.path.join(cached, "config.json")):
-        print(f"[serve_model] Using cached model at: {cached}")
-        return cached
-    import litmodels
-
-    print(f"[serve_model] Resolving litmodels reference: {path}")
-    local = litmodels.download_model(path, download_dir="/tmp/models")
-    print(f"[serve_model] Model ready at: {local}")
-    return str(local)
+from model_utils import resolve_model_path
 
 
 class VLLMLitAPI(ls.LitAPI):
@@ -123,7 +104,7 @@ def main() -> None:
         help="Fraction of GPU memory vLLM may use (lower when sharing GPU between two servers)",
     )
     args = parser.parse_args()
-    model_dir = _resolve_model_path(args.model_dir)
+    model_dir = resolve_model_path(args.model_dir)
 
     api = VLLMLitAPI(
         model_dir=model_dir,

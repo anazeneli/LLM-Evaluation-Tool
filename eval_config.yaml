@@ -18,13 +18,14 @@ job:
   max_model_len: 2048
 
 models:
-  # Add one entry per fine-tuned checkpoint to evaluate.
-  # path = local filesystem path or HuggingFace model ID — passed directly to vLLM.
-  # To evaluate your own fine-tuned checkpoint, point path at where your training job saved weights:
-  #   e.g. /teamspace/jobs/<your-training-job>/snapshot/outputs/checkpoint
+  # Add one entry per checkpoint to evaluate.
+  # path supports three formats:
+  #   1. litmodels ref  — org/teamspace/model-name   (downloaded to /tmp/models/ on the job machine)
+  #   2. teamspace path — /teamspace/studios/<studio>/path/to/checkpoint
+  #   3. local path     — ./models/my-model  or any absolute path visible on the job machine
   - name: baseline
-    path: org/teamspace/gemma-3-270m-it
-    arch: gemma-3-270m-it    # dashboard grouping dimension — group runs by arch to compare the same model family
+    path: org/teamspace/gemma-3-270m-it   # <-- replace with your model path (see formats above)
+    arch: gemma-3-270m-it    # used for dashboard grouping; set to the base model family name
 
   # - name: finetune_v1
   #   path: /teamspace/studios/this_studio/checkpoints/gemma-3-270m-it-ft

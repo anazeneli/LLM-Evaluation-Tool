@@ -5,9 +5,10 @@ and logs to a shared LitLogger experiment. Compare all combinations in the
 LitLogger dashboard after jobs complete.
 
 Usage:
-    python submit_jobs.py                          # uses eval_config.yaml
+    python submit_jobs.py                                          # uses eval_config.yaml
     python submit_jobs.py --config my_config.yaml
-    python submit_jobs.py --config eval_config.yaml --limit 3  # smoke test
+    python submit_jobs.py --limit 5                               # smoke test (5 prompts, T4)
+    python submit_jobs.py --model-dir org/space/my-model --limit 5  # override model path
 """
 
 from __future__ import annotations
@@ -15,14 +16,9 @@ from __future__ import annotations
 import argparse
 import time
 
-import yaml
+from config import load_config
 from lightning_sdk import Studio
 from lightning_sdk.studio import Machine
-
-
-def load_config(path: str) -> dict:
-    with open(path) as f:
-        return yaml.safe_load(f)
 
 
 def main() -> None:
@@ -30,19 +26,20 @@ def main() -> None:
     parser.add_argument("--config", default="eval_config.yaml")
     parser.add_argument("--limit", type=int, default=0, help="Row cap per job (0 = all); for smoke tests")
     parser.add_argument("--dry-run", action="store_true", help="Print jobs without submitting")
+    parser.add_argument("--model-dir", default=None, help="Override model path for all jobs (bypasses eval_config.yaml)")
     args = parser.parse_args()
 
     cfg = load_config(args.config)
 
-    experiment_name = cfg["experiment"]["name"]
-    dataset = cfg["experiment"]["dataset"]
-    machine_str = cfg["job"]["machine"].upper().replace("-", "_")
+    experiment_name = cfg.experiment_name
+    dataset = cfg.dataset
+    machine_str = cfg.machine
     machine = getattr(Machine, machine_str, Machine.L4)
-    interruptible = cfg["job"].get("interruptible", False)
-    max_model_len = cfg["job"].get("max_model_len", 2048)
+    interruptible = cfg.interruptible
+    max_model_len = cfg.max_model_len
 
-    models = cfg.get("models", [])
-    prompts = cfg.get("prompts", [{"name": "default", "system": ""}])
+    models = cfg.models
+    prompts = cfg.prompts
 
     studio = Studio()
     total_jobs = len(models) * len(prompts)
@@ -56,25 +53,21 @@ def main() -> None:
     submitted = []
     for model in models:
         for prompt in prompts:
-            model_name = f"{model['name']}__{prompt['name']}"
+            model_name = f"{model.name}__{prompt.name}"
             job_name = f"eval-{model_name}-{int(time.time())}"
-
-            arch = model.get("arch")
-            if not arch:
-                print(f"  [warn] model '{model['name']}' has no 'arch' field — defaulting to model name")
-                arch = model["name"]
+            model_path = args.model_dir or model.path
 
             cmd_parts = [
                 "python run_job.py",
-                f"--model-dir {model['path']}",
+                f"--model-dir {model_path}",
                 f"--model-name {model_name}",
-                f"--arch {arch}",
+                f"--arch {model.arch}",
                 f"--experiment-name {experiment_name}",
                 f"--dataset {dataset}",
                 f"--max-model-len {max_model_len}",
             ]
-            if prompt.get("system"):
-                prompt_arg = prompt["system"].strip().replace("\n", " ")
+            if prompt.system:
+                prompt_arg = prompt.system.strip().replace("\n", " ")
                 cmd_parts.append(f"--system-prompt \"{prompt_arg}\"")
             if args.limit > 0:
                 cmd_parts.append(f"--limit {args.limit}")
@@ -82,8 +75,8 @@ def main() -> None:
             command = " ".join(cmd_parts)
 
             print(f"  Job: {job_name}")
-            print(f"       model  = {model['path']}")
-            print(f"       prompt = {prompt['name']}")
+            print(f"       model  = {model_path}")
+            print(f"       prompt = {prompt.name}")
             print(f"       cmd    = {command}")
 
             if args.dry_run:
