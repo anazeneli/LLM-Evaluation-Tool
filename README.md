@@ -150,7 +150,11 @@ LitLogger tracks per-job:
 - **Tags:** `arch` (model family, sortable column for cross-run comparison), `experiment_type` (run identity: `{model}__{prompt}`)
 - **Artifact:** full results JSONL file
 
-Compare all models in one experiment dashboard by sorting on `arch` or any metric column.
+**How experiments map to LitLogger:** `experiment.name` in `eval_config.yaml` becomes a LitLogger
+experiment in your teamspace — think of it as a folder that groups runs for comparison. All jobs
+submitted from the same config share one experiment. Each job logs as a separate run under
+`{model}__{prompt}` (e.g. `google-base__default`, `google-it__default`) so runs never overwrite
+each other. View all runs side-by-side at **lightning.ai → your teamspace → LitLogger**.
 
 **The logging is yours to extend.** All LitLogger calls are in one place — the `if log:` block at the bottom of `run()` in `run_inference.py`. Add metrics to the `summary` dict, add tags to `log_metadata`, or call `exp.log_file()` with additional artifacts. Changes apply to every job without touching the submission or job-runner code.
 

@@ -8,7 +8,7 @@
 #   python run_job.py --model-dir <path> --model-name test --dataset data/sample_prompts.jsonl --limit 5
 
 experiment:
-  name: my-eval-run
+  name: gemma-3-270m-baseline
   # Replace with your real prompt dataset for production runs (100k+ rows supported)
   dataset: data/sample_prompts.jsonl
 
@@ -20,12 +20,20 @@ job:
 models:
   # Add one entry per checkpoint to evaluate.
   # path supports three formats:
-  #   1. litmodels ref  — org/teamspace/model-name   (downloaded to /tmp/models/ on the job machine)
+  #   1. litmodels ref  — org/teamspace/model-name   (downloaded to models/ on the job machine)
   #   2. teamspace path — /teamspace/studios/<studio>/path/to/checkpoint
   #   3. local path     — ./models/my-model  or any absolute path visible on the job machine
-  - name: baseline
-    path: org/teamspace/gemma-3-270m-it   # <-- replace with your model path (see formats above)
-    arch: gemma-3-270m-it    # used for dashboard grouping; set to the base model family name
+  - name: google-base
+    path: org/teamspace/gemma-3-270m
+    arch: gemma-3-270m
+
+  - name: google-it
+    path: org/teamspace/gemma-3-270m-it
+    arch: gemma-3-270m-it
+
+  - name: unsloth-it
+    path: org/teamspace/unsloth--gemma-3-270m-it
+    arch: gemma-3-270m-it
 
   # - name: finetune_v1
   #   path: /teamspace/studios/this_studio/checkpoints/gemma-3-270m-it-ft

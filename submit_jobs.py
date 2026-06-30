@@ -5,10 +5,10 @@ and logs to a shared LitLogger experiment. Compare all combinations in the
 LitLogger dashboard after jobs complete.
 
 Usage:
-    python submit_jobs.py                                          # uses eval_config.yaml
-    python submit_jobs.py --config my_config.yaml
-    python submit_jobs.py --limit 5                               # smoke test (5 prompts, T4)
-    python submit_jobs.py --model-dir org/space/my-model --limit 5  # override model path
+    python submit_jobs.py                        # all models in eval_config.yaml
+    python submit_jobs.py --only google-base     # single model smoke test
+    python submit_jobs.py --limit 5              # 5-prompt smoke test across all models
+    python submit_jobs.py --only google-base --limit 5  # single model, 5 prompts
 """
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ def main() -> None:
     parser.add_argument("--config", default="eval_config.yaml")
     parser.add_argument("--limit", type=int, default=0, help="Row cap per job (0 = all); for smoke tests")
     parser.add_argument("--dry-run", action="store_true", help="Print jobs without submitting")
-    parser.add_argument("--model-dir", default=None, help="Override model path for all jobs (bypasses eval_config.yaml)")
+    parser.add_argument("--only", default=None, help="Submit only this model name (from eval_config.yaml models[].name)")
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -39,6 +39,10 @@ def main() -> None:
     max_model_len = cfg.max_model_len
 
     models = cfg.models
+    if args.only:
+        models = [m for m in models if m.name == args.only]
+        if not models:
+            raise SystemExit(f"No model named '{args.only}' in config. Available: {[m.name for m in cfg.models]}")
     prompts = cfg.prompts
 
     studio = Studio()
@@ -55,7 +59,7 @@ def main() -> None:
         for prompt in prompts:
             model_name = f"{model.name}__{prompt.name}"
             job_name = f"eval-{model_name}-{int(time.time())}"
-            model_path = args.model_dir or model.path
+            model_path = model.path
 
             cmd_parts = [
                 "python run_job.py",
